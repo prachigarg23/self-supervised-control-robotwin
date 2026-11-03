@@ -1,0 +1,13 @@
+{
+  "block1_color": [
+    0.5,
+    0.0,
+    0.5
+  ],
+  "cylinder_color": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "task": "Pick up the purple block and place it in the center of the table. Pick up the white cylinder and stack it on top of the purple block."
+}

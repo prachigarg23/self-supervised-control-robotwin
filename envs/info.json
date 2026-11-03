@@ -1,0 +1,23 @@
+{
+  "block1_color": [
+    0.53,
+    0.81,
+    0.98
+  ],
+  "block2_color": [
+    0.0,
+    0.5,
+    0.5
+  ],
+  "sphere_color": [
+    0.0,
+    0.66,
+    0.42
+  ],
+  "cylinder_color": [
+    0.0,
+    0.5,
+    0.5
+  ],
+  "task": "Pick up the sky block and place it in the center of the table. Pick up the teal cylinder and stack it on top of the sky block."
+}

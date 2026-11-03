@@ -1,0 +1,19 @@
+{
+  "place_dual_shoes": "Use both arms to pick up the two shoes on the table and put them in the shoebox, with the shoe tip pointing to the left.",
+  "put_bottles_dustbin": "Pick up the bottles and put them into the dustbin to the left of the table.",
+  "beat_block_hammer": "Use the closest arm to grab the hammer and beat the block",
+  "handover_mic": "Pick up the microphone using the closest arm and hand it over to the other arm.",
+  "lift_pot": "Use both arms to lift up the pot",
+  "open_microwave": "Use one arm to open the microwave",
+  "pick_dual_bottles": "Pick up one bottle with one arm, and pick up another bottle with the other arm.",
+  "place_bread_basket": "Pick up the breads and place them in the basket.",
+  "place_empty_cup": "Use the closer arm to place the empty cup on the coaster.",
+  "place_container_plate": "Place the container on the plate.",
+  "stack_bowls_two": "Stack the two bowls on top of each other.",
+  "stack_blocks_three": "Pick up the red block and place it in the center of the table. Pick up the green block and stack it on top of the red block. Pick up the blue block and stack it on top of the green block.",
+  "stack_blocks_two_green_on_red": "Pick up the red block and place it in the center of the table. Pick up the green block and stack it on top of the red block.",
+  "stack_blocks_two_red_on_green": "Pick up the green block and place it in the center of the table. Pick up the red block and stack it on top of the green block.",
+  "stack_bowls_three": "Stack the three bowls on top of each other.",
+  "place_bread_skillet": "Pick up the bread on the table and place it in the skillet.",
+  "place_mouse_pad": "Pick up the mouse and place it on a colored mat."
+}

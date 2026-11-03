@@ -1,0 +1,67 @@
+models/
+data/*
+!data/process_stuck.py
+__pycache__/
+**/checkpoints/
+result/
+envs/curobo
+*.zip
+my_time_test.txtclear
+viewer_show.*
+eval_video/
+**/.DS_Store
+
+# eval result
+eval_result/
+
+# Launch grid outputs (per-user dirs under …/USERNAME/…)
+prahit_dir/
+
+# Code Generation
+assets/*
+!assets/_download.py
+!assets/files
+!assets/background_texture/
+assets/background_texture/*
+!assets/background_texture/seen/
+assets/background_texture/seen/*
+# custom ground texture: link into assets_custom/ (keeps the texture file count unchanged)
+!assets/background_texture/seen/768_ground_one_shade_brighter.png
+
+policy/weights/*
+
+envs/curobo/*
+
+.vscode
+/config.json
+
+/*.json*
+!/task_prompts.json
+/*.txt
+
+eval_logs/
+eval_logs_multi_task/
+eval_logs_continual_multitask_stack_blocks/
+eval_logs_continual_FAST_multitask_stack_blocks/
+eval_logs_continual_multitask_stack_blocks_diff_prompts/
+eval_logs_*/
+old_sa_test/
+run_eval_blocks_all.sh
+run_eval_blocks_all2.sh
+eval_seeds_cache/*.txt
+pi05_robotwin_stack_blocks_mlp_gate_up_only/
+pi05_robotwin_stack_blocks_sa_only/
+run_eval_mine.sh
+view_frames/
+run_eval_multi_task.sh
+run_eval_stage2_stack_blocks.sh
+run_eval_continual_multitask_to_stack_blocks.sh
+my_ood.sh
+temp.sh
+
+# local experiment outputs (not part of the release)
+logdir_*/
+experiment_archive/
+S1_policy_generated_data/
+claude_session/
+saved_runs.csv

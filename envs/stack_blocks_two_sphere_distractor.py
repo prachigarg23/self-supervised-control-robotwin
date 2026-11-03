@@ -1,0 +1,192 @@
+from ._base_task import Base_Task
+from .utils import *
+import sapien
+import json
+
+block_color = (0, 1, 0)
+sphere_color = (1, 0, 0)
+block2_color = (0, 0, 1)
+
+if not os.path.exists("envs/info.json"):
+    print("info.json not found")
+else:
+    with open("envs/info.json", "r") as f:
+                info = json.load(f)
+                block_color = info["block1_color"]
+                sphere_color = info["sphere_color"]
+                block2_color = info["block2_color"]
+
+class stack_blocks_two_sphere_distractor(Base_Task):
+
+    def setup_demo(self, **kwags):
+        global block_color, sphere_color, block2_color
+        seed = kwags.get("seed")
+        per_seed = f"envs/ood_colors/stack_blocks_two_sphere_distractor/seed_{seed}.json"
+        info_file = per_seed if seed is not None and os.path.exists(per_seed) else "envs/info.json"
+        with open(info_file, "r") as f:
+            info = json.load(f)
+            block_color = info["block1_color"]
+            sphere_color = info["sphere_color"]
+            block2_color = info["block2_color"]
+        super()._init_task_env_(**kwags)
+
+    def load_actors(self):
+        block_half_size = 0.025
+        block_pose_lst = []
+        for i in range(3):
+            block_pose = rand_pose(
+                # xlim=[-0.28, 0.28],
+                # ylim=[-0.08, 0.05],
+                xlim=[-0.30, 0.30],
+                ylim=[-0.10, 0.06],
+                zlim=[0.741 + block_half_size],
+                qpos=[1, 0, 0, 0],
+                ylim_prop=True,
+                rotate_rand=True,
+                rotate_lim=[0, 0, 0.75],
+            )
+
+            def check_block_pose(block_pose):
+                for j in range(len(block_pose_lst)):
+                    if (np.sum(pow(block_pose.p[:2] - block_pose_lst[j].p[:2], 2)) < 0.01):
+                        return False
+                return True
+
+            while (abs(block_pose.p[0]) < 0.05 or np.sum(pow(block_pose.p[:2] - np.array([0, -0.1]), 2)) < 0.0225
+                   or not check_block_pose(block_pose)):
+                block_pose = rand_pose(
+                    # xlim=[-0.28, 0.28],
+                    # ylim=[-0.08, 0.05],
+                    xlim=[-0.30, 0.30],
+                    ylim=[-0.10, 0.06],
+                    zlim=[0.741 + block_half_size],
+                    qpos=[1, 0, 0, 0],
+                    ylim_prop=True,
+                    rotate_rand=True,
+                    rotate_lim=[0, 0, 0.75],
+                )
+            block_pose_lst.append(deepcopy(block_pose))
+
+        def create_block(block_pose, color):
+            return create_box(
+                scene=self,
+                pose=block_pose,
+                half_size=(block_half_size, block_half_size, block_half_size),
+                color=color,
+                name="box",
+            )
+        def create_sphere_local(block_pose, color):
+            return create_sphere(
+                scene=self,
+                pose=block_pose,
+                radius = block_half_size,
+                color=color,
+                name="sphere",
+            )
+        global block_color, sphere_color, block2_color
+        self.block1 = create_block(block_pose_lst[0], block_color)
+        self.block2 = create_sphere_local(block_pose_lst[1], sphere_color)
+        self.block3 = create_block(block_pose_lst[2], block2_color)
+        self.add_prohibit_area(self.block1, padding=0.07)
+        self.add_prohibit_area(self.block2, padding=0.07)
+        target_pose = [-0.04, -0.13, 0.04, -0.05]
+        self.prohibited_area.append(target_pose)
+        self.block1_target_pose = [0, -0.13, 0.75 + self.table_z_bias, 0, 1, 0, 0]
+
+    def play_once(self):
+        # Initialize tracking variables for gripper and actor
+        self.last_gripper = None
+        self.last_actor = None
+
+        # Pick and place the first block (block1) and get its arm tag
+        arm_tag1 = self.pick_and_place_block(self.block1)
+        # Pick and place the second block (block2) and get its arm tag
+        arm_tag2 = self.pick_and_place_sphere_local(self.block2)
+
+        # Store information about the blocks and their associated arms
+        self.info["info"] = {
+            "{A}": "red block",
+            "{B}": "green block",
+            "{a}": arm_tag1,
+            "{b}": arm_tag2,
+        }
+        return self.info
+
+    def pick_and_place_block(self, block: Actor):
+        block_pose = block.get_pose().p
+        arm_tag = ArmTag("left" if block_pose[0] < 0 else "right")
+
+        if self.last_gripper is not None and (self.last_gripper != arm_tag):
+            self.move(
+                self.grasp_actor(block, arm_tag=arm_tag, pre_grasp_dis=0.09),  # arm_tag
+                self.back_to_origin(arm_tag=arm_tag.opposite),  # arm_tag.opposite
+            )
+        else:
+            self.move(self.grasp_actor(block, arm_tag=arm_tag, pre_grasp_dis=0.09))  # arm_tag
+
+        self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.07))  # arm_tag
+
+        if self.last_actor is None:
+            target_pose = [0, -0.13, 0.75 + self.table_z_bias, 0, 1, 0, 0]
+        else:
+            target_pose = self.last_actor.get_functional_point(1)
+
+        self.move(
+            self.place_actor(
+                block,
+                target_pose=target_pose,
+                arm_tag=arm_tag,
+                functional_point_id=0,
+                pre_dis=0.05,
+                dis=0.,
+                pre_dis_axis="fp",
+            ))
+        self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.07))  # arm_tag
+
+        self.last_gripper = arm_tag
+        self.last_actor = block
+        return str(arm_tag)
+    
+    def pick_and_place_sphere_local(self, block: Actor):
+        block_pose = block.get_pose().p
+        arm_tag = ArmTag("left" if block_pose[0] < 0 else "right")
+
+        if self.last_gripper is not None and (self.last_gripper != arm_tag):
+            self.move(
+                self.grasp_actor(block, arm_tag=arm_tag, pre_grasp_dis=0.09, contact_point_id=[0, 1, 2, 3]),
+                self.back_to_origin(arm_tag=arm_tag.opposite),
+            )
+        else:
+            self.move(self.grasp_actor(block, arm_tag=arm_tag, pre_grasp_dis=0.09, contact_point_id=[0, 1, 2, 3]))
+
+        self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.07))  # arm_tag
+
+        if self.last_actor is None:
+            target_pose = [0, -0.13, 0.75 + self.table_z_bias, 0, 1, 0, 0]
+        else:
+            target_pose = self.last_actor.get_functional_point(1)
+
+        self.move(
+            self.place_actor(
+                block,
+                target_pose=target_pose,
+                arm_tag=arm_tag,
+                functional_point_id=0,
+                pre_dis=0.05,
+                dis=0.,
+                pre_dis_axis="fp",
+            ))
+        self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.07))  # arm_tag
+
+        self.last_gripper = arm_tag
+        self.last_actor = block
+        return str(arm_tag)
+        
+
+    def check_success(self):
+        block1_pose = self.block1.get_pose().p
+        block2_pose = self.block2.get_pose().p
+        eps = [0.025, 0.025, 0.012]
+
+        return (np.all(abs(block2_pose - np.array(block1_pose[:2].tolist() + [block1_pose[2] + 0.05])) < eps)
+                and self.is_left_gripper_open() and self.is_right_gripper_open())

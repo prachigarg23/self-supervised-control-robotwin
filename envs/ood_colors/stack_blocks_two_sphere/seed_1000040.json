@@ -1,0 +1,13 @@
+{
+  "block1_color": [
+    1.0,
+    0.0,
+    0.0
+  ],
+  "sphere_color": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "task": "Pick up the red block and place it in the center of the table. Pick up the gray sphere and stack it on top of the red block."
+}
